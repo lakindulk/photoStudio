@@ -1,0 +1,155 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && getUserData().role == 'admin';
+    }
+
+    function isSeller() {
+      return isAuthenticated() && getUserData().role == 'seller';
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isSellerOwner(sellerId) {
+      return isAuthenticated() && request.auth.uid == sellerId;
+    }
+
+    // Users collection rules
+    match /users/{userId} {
+      // Allow users to read their own profile
+      allow read: if isOwner(userId);
+
+      // Allow users to create their own profile during signup
+      allow create: if isAuthenticated() && isOwner(userId);
+
+      // Allow users to update their own profile
+      allow update: if isOwner(userId);
+
+      // Allow admins to read all users
+      allow read: if isAdmin();
+
+      // Allow admins to update users
+      allow update: if isAdmin();
+
+      // Allow admins to delete users
+      allow delete: if isAdmin();
+    }
+
+    // Seller profiles collection rules
+    match /sellerProfiles/{profileId} {
+      // Guests can read seller profiles (for portfolio view)
+      allow read: if true;
+
+      // Sellers can read their own profile
+      allow read: if isSellerOwner(resource.data.userId);
+
+      // Sellers can create their own profile
+      allow create: if isSeller() && isSellerOwner(request.resource.data.userId);
+
+      // Sellers can update their own profile
+      allow update: if isSellerOwner(resource.data.userId);
+
+      // Admins can read/update all profiles
+      allow read, update: if isAdmin();
+    }
+
+    // Advertisements collection rules
+    match /advertisements/{adId} {
+      // Guests can read active and approved advertisements
+      allow read: if resource.data.status == 'active' && resource.data.isApproved == true;
+
+      // Admins can read all advertisements
+      allow read: if isAdmin();
+
+      // Sellers can read their own advertisements
+      allow read: if isSeller() && isSellerOwner(resource.data.sellerId);
+
+      // Sellers can create advertisements
+      allow create: if isSeller() && isSellerOwner(request.resource.data.sellerId);
+
+      // Sellers can update their own advertisements
+      allow update: if isSeller() && isSellerOwner(resource.data.sellerId);
+
+      // Sellers can delete their own advertisements
+      allow delete: if isSeller() && isSellerOwner(resource.data.sellerId);
+
+      // Admins can update/delete any advertisement
+      allow update, delete: if isAdmin();
+    }
+
+    // Ad payments collection rules (DEPRECATED - kept for backward compatibility)
+    match /adPayments/{paymentId} {
+      // Sellers can read their own payments
+      allow read: if isSeller() && isSellerOwner(resource.data.sellerId);
+
+      // Admins can read all payments
+      allow read: if isAdmin();
+
+      // Sellers can create payments
+      allow create: if isSeller() && isSellerOwner(request.resource.data.sellerId);
+
+      // Admins can update payments (for verification)
+      allow update: if isAdmin();
+
+      // Admins can delete payments
+      allow delete: if isAdmin();
+    }
+
+    // Subscriptions collection rules
+    match /subscriptions/{subscriptionId} {
+      // Sellers can read their own subscriptions
+      allow read: if isSeller() && isSellerOwner(resource.data.sellerId);
+
+      // Admins can read all subscriptions
+      allow read: if isAdmin();
+
+      // Sellers can create subscriptions
+      allow create: if isSeller() && isSellerOwner(request.resource.data.sellerId);
+
+      // Admins can update subscriptions (for approval)
+      allow update: if isAdmin();
+
+      // Admins can delete subscriptions
+      allow delete: if isAdmin();
+    }
+
+    // Bookings collection rules
+    match /bookings/{bookingId} {
+      // Customers can read their own bookings
+      allow read: if isAuthenticated() && isOwner(resource.data.customerId);
+
+      // Sellers can read bookings for their services
+      allow read: if isSeller() && isSellerOwner(resource.data.sellerId);
+
+      // Admins can read all bookings
+      allow read: if isAdmin();
+
+      // Authenticated users can create bookings
+      allow create: if isAuthenticated();
+
+      // Sellers can update bookings for their services
+      allow update: if isSeller() && isSellerOwner(resource.data.sellerId);
+
+      // Admins can update/delete any booking
+      allow update, delete: if isAdmin();
+    }
+
+    // Default deny rule for any other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

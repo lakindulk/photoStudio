@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    /* Background - White for clean look */
+    --background: 0 0% 100%;
+    /* Text - #082537 Deep Navy */
+    --foreground: 203 75% 12%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 203 75% 12%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 203 75% 12%;
+    
+    /* Primary action - #788C59 Olive Green */
+    --primary: 83 23% 45%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary - #254A5A Slate/Teal */
+    --secondary: 198 42% 25%;
+    --secondary-foreground: 0 0% 100%;
+    
+    /* Muted - #D4E1E7 Ice Blue */
+    --muted: 199 26% 87%;
+    --muted-foreground: 198 42% 25%;
+    
+    /* Accent - #98BBD7 Light Blue */
+    --accent: 206 43% 72%;
+    --accent-foreground: 203 75% 12%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Border - #809983 Sage */
+    --border: 127 11% 55%;
+    --input: 127 11% 55%;
+    
+    --ring: 203 75% 12%;
+    
+    --radius: 1.5rem;
+  }
+
+  .dark {
+    /* We'll force light theme colors even in dark mode for this specific premium look, or invert them properly */
+    --background: 203 75% 8%;
+    --foreground: 199 26% 87%;
+    --card: 203 75% 10%;
+    --card-foreground: 199 26% 87%;
+    --popover: 203 75% 10%;
+    --popover-foreground: 199 26% 87%;
+    --primary: 83 23% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 198 42% 25%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 203 75% 16%;
+    --muted-foreground: 206 43% 72%;
+    --accent: 198 42% 25%;
+    --accent-foreground: 199 26% 87%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 198 42% 25%;
+    --input: 198 42% 25%;
+    --ring: 127 11% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary;
+  }
+  
+  /* Add smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+}
