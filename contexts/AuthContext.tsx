@@ -18,7 +18,7 @@ interface AuthContextType {
   firebaseUser: FirebaseUser | null
   loading: boolean
   signIn: (email: string, password: string) => Promise<void>
-  signUp: (email: string, password: string, userData: Partial<User>) => Promise<void>
+  signUp: (email: string, password: string, userData: Partial<User>) => Promise<string>
   logout: () => Promise<void>
   isAdmin: boolean
   isSeller: boolean
@@ -48,24 +48,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return
     }
 
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setFirebaseUser(firebaseUser)
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      setFirebaseUser(fbUser)
 
-      if (firebaseUser) {
+      if (fbUser) {
+        setLoading(true)
         try {
-          const userDoc = await getDoc(doc(db, "users", firebaseUser.uid))
+          const userDoc = await getDoc(doc(db, "users", fbUser.uid))
           if (userDoc.exists()) {
-            const userData = userDoc.data()
+            const data = userDoc.data()
             setUser({
-              id: firebaseUser.uid,
-              email: firebaseUser.email!,
-              ...userData,
-              createdAt: userData.createdAt?.toDate(),
-              updatedAt: userData.updatedAt?.toDate(),
+              id: fbUser.uid,
+              email: fbUser.email!,
+              ...data,
+              createdAt: data.createdAt?.toDate(),
+              updatedAt: data.updatedAt?.toDate(),
             } as User)
           }
-        } catch (error) {
-          console.error("Error fetching user data:", error)
+        } catch (err) {
+          console.error("onAuthStateChanged fetch error:", err)
         }
       } else {
         setUser(null)
@@ -80,28 +81,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     const auth = getFirebaseAuth()
     if (!auth) throw new Error("Auth not initialized")
-    await signInWithEmailAndPassword(auth, email, password)
+    setLoading(true)
+    try {
+      await signInWithEmailAndPassword(auth, email, password)
+    } catch (error) {
+      setLoading(false)
+      throw error
+    }
   }
 
-  const signUp = async (email: string, password: string, userData: Partial<User>) => {
+  const signUp = async (email: string, password: string, userData: Partial<User>): Promise<string> => {
     const auth = getFirebaseAuth()
     const db = getFirebaseFirestore()
     if (!auth || !db) throw new Error("Firebase not initialized")
 
-    const { user: firebaseUser } = await createUserWithEmailAndPassword(auth, email, password)
+    setLoading(true)
+    try {
+      // Step 1 — create the Firebase Auth user
+      const { user: fbUser } = await createUserWithEmailAndPassword(auth, email, password)
 
-    const userDoc = {
-      email: firebaseUser.email,
-      role: userData.role || "seller",
-      name: userData.name || "",
-      phone: userData.phone || "",
-      whatsapp: userData.whatsapp || "",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      ...userData,
+      // Step 2 — force a fresh ID token so Firestore's auth middleware
+      //          recognises the newly created account before we write
+      await fbUser.getIdToken(true)
+
+      // Step 3 — write the Firestore user document directly
+      const userDocData = {
+        email: fbUser.email,
+        role: userData.role || "seller",
+        name: userData.name || "",
+        phone: userData.phone || "",
+        whatsapp: userData.whatsapp || "",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        ...userData,
+      }
+
+      await setDoc(doc(db, "users", fbUser.uid), userDocData)
+
+      // Step 4 — set user in context immediately so layouts don't redirect
+      setUser({
+        id: fbUser.uid,
+        email: fbUser.email!,
+        ...userDocData,
+      } as User)
+
+      return fbUser.uid
+    } catch (error: any) {
+      setLoading(false)
+      // Re-throw with a clear message so the registration page can show it
+      const msg = error?.message || String(error)
+      console.error("signUp error:", msg)
+      throw new Error(msg)
     }
-
-    await setDoc(doc(db, "users", firebaseUser.uid), userDoc)
   }
 
   const logout = async () => {
@@ -113,16 +144,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isAdmin = user?.role === "admin"
   const isSeller = user?.role === "seller"
 
-  const value = {
-    user,
-    firebaseUser,
-    loading,
-    signIn,
-    signUp,
-    logout,
-    isAdmin,
-    isSeller,
-  }
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={{ user, firebaseUser, loading, signIn, signUp, logout, isAdmin, isSeller }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }

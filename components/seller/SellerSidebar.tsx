@@ -13,8 +13,6 @@ import {
   X,
   CreditCard,
   CalendarDays,
-  ShoppingBag,
-  Megaphone,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/AuthContext"
@@ -26,7 +24,6 @@ const navigation = [
   { name: "Subscriptions", href: "/seller/subscriptions", icon: CreditCard },
   { name: "Advertisements", href: "/seller/ads", icon: Camera },
   { name: "Event Calendar", href: "/seller/calendar", icon: CalendarDays, badge: "Free" },
-  { name: "Sell / Rent Items", href: "/seller/marketplace", icon: ShoppingBag },
   { name: "Bookings", href: "/seller/bookings", icon: ShoppingCart },
 ]
 

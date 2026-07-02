@@ -1,50 +1,22 @@
 "use client"
 
-import { useState } from "react"
 import { Header } from "@/components/Header"
 import {
   SUBSCRIPTION_PACKAGES_3M,
-  SUBSCRIPTION_PACKAGES_6M,
   SUBSCRIPTION_PACKAGES_SPECIAL,
   MAX_ADS_PER_SUBSCRIPTION,
 } from "@/lib/constants"
-import { Check, LayoutGrid, Zap, Star, Globe, CalendarDays, MessageCircle, ArrowRight, Camera } from "lucide-react"
+import { Check, CalendarDays, MessageCircle, ArrowRight, Camera } from "lucide-react"
 import Link from "next/link"
 
-type Tab = "all" | "basic" | "standard" | "premium"
-
-const TABS: { key: Tab; label: string; icon: any }[] = [
-  { key: "all",      label: "All Plans",  icon: LayoutGrid },
-  { key: "basic",    label: "Basic",      icon: Zap },
-  { key: "standard", label: "Standard",   icon: Star },
-  { key: "premium",  label: "Premium",    icon: Globe },
+const SECTIONS = [
+  { label: "Business & Portfolio", desc: "Custom website built and managed by our team", packages: SUBSCRIPTION_PACKAGES_SPECIAL.slice(2, 3) },
+  { label: "3-Month Plans",        desc: "Standard service plans — billed every 3 months", packages: SUBSCRIPTION_PACKAGES_3M },
 ]
 
-const SECTIONS = {
-  all: [
-    { label: "Business & Portfolio", desc: "Get listed with ads-only or a readymade portfolio", packages: SUBSCRIPTION_PACKAGES_SPECIAL.slice(0, 2) },
-    { label: "3-Month Plans",        desc: "Standard service plans — billed every 3 months",   packages: SUBSCRIPTION_PACKAGES_3M },
-    { label: "6-Month Plans",        desc: "Save ~20% — same plans billed every 6 months",     packages: SUBSCRIPTION_PACKAGES_6M },
-    { label: "Premium Plans",        desc: "Custom website or fully managed by our team",       packages: SUBSCRIPTION_PACKAGES_SPECIAL.slice(2) },
-  ],
-  basic: [
-    { label: "Business & Portfolio", desc: "Get listed with ads-only or a readymade portfolio", packages: SUBSCRIPTION_PACKAGES_SPECIAL.slice(0, 2) },
-  ],
-  standard: [
-    { label: "3-Month Plans", desc: "Standard service plans — billed every 3 months", packages: SUBSCRIPTION_PACKAGES_3M },
-    { label: "6-Month Plans", desc: "Save ~20% — same plans billed every 6 months",   packages: SUBSCRIPTION_PACKAGES_6M },
-  ],
-  premium: [
-    { label: "Premium Plans", desc: "Custom website or fully managed by our team", packages: SUBSCRIPTION_PACKAGES_SPECIAL.slice(2) },
-  ],
-}
-
-const isContact = (pkg: any) =>
-  pkg.type === "custom-portfolio-website" || pkg.type === "fully-managed"
+const isContact = (pkg: any) => pkg.type === "custom-portfolio-website"
 
 export default function PlansPage() {
-  const [tab, setTab] = useState<Tab>("all")
-
   return (
     <div className="min-h-screen bg-[#f4f7f5]">
       <Header forceWhite />
@@ -65,8 +37,6 @@ export default function PlansPage() {
           <p className="text-white/45 text-base max-w-xl mx-auto leading-relaxed mb-8">
             Choose a plan that fits your goals. Every subscription includes a free Event Calendar and up to {MAX_ADS_PER_SUBSCRIPTION} active ads.
           </p>
-
-          {/* Calendar banner */}
           <div className="inline-flex items-center gap-2.5 bg-[#788C59]/15 border border-[#788C59]/25 text-[#788C59] px-5 py-2.5 rounded-full text-sm font-semibold">
             <CalendarDays className="w-4 h-4" />
             Free Event Calendar included with every plan
@@ -74,29 +44,9 @@ export default function PlansPage() {
         </div>
       </section>
 
-      {/* Tabs */}
-      <div className="sticky top-0 z-30 bg-white border-b border-[#082537]/8 shadow-sm">
-        <div className="max-w-5xl mx-auto px-6 flex gap-1 py-3 overflow-x-auto">
-          {TABS.map(({ key, label, icon: Icon }) => (
-            <button
-              key={key}
-              onClick={() => setTab(key)}
-              className={`inline-flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-sm whitespace-nowrap transition-all ${
-                tab === key
-                  ? "bg-[#082537] text-white shadow-sm"
-                  : "text-[#082537]/55 hover:text-[#082537] hover:bg-[#082537]/5"
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Plan sections */}
       <div className="max-w-5xl mx-auto px-6 py-14 space-y-14">
-        {SECTIONS[tab].map((section, si) => (
+        {SECTIONS.map((section, si) => (
           <div key={section.label} className="animate-fade-in-up" style={{ animationDelay: `${si * 60}ms` }}>
             <div className="mb-6">
               <h2 className="text-xl font-black text-[#082537]">{section.label}</h2>
@@ -116,7 +66,6 @@ export default function PlansPage() {
                     }`}
                     style={{ animationDelay: `${si * 60 + pi * 50}ms` }}
                   >
-                    {/* Badges */}
                     <div className="absolute top-4 right-4 flex gap-1.5 flex-wrap justify-end">
                       {pkg.popular && <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#788C59] text-white">Popular</span>}
                       {pkg.premium && <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#082537] text-white">Premium</span>}
@@ -160,7 +109,7 @@ export default function PlansPage() {
                       </a>
                     ) : (
                       <Link
-                        href="/seller/register"
+                        href={`/seller/register?plan=${pkg.type}`}
                         className="flex items-center justify-center gap-2 w-full bg-[#082537] text-white py-2.5 rounded-xl font-bold text-sm hover:bg-[#082537]/90 transition-colors group"
                       >
                         Get Started

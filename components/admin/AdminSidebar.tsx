@@ -15,9 +15,8 @@ import {
   LogOut,
   Menu,
   X,
-  Package,
-  ShoppingBag,
   Shield,
+  Ticket,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/AuthContext"
@@ -28,8 +27,8 @@ const navigation = [
   { name: "Sellers", href: "/admin/sellers", icon: Users, section: "main" },
   { name: "Subscriptions", href: "/admin/subscriptions", icon: CreditCard, section: "main" },
   { name: "Ad Approvals", href: "/admin/ads", icon: Camera, section: "main" },
-  { name: "Marketplace Items", href: "/admin/marketplace", icon: ShoppingBag, section: "main" },
   { name: "Bookings", href: "/admin/bookings", icon: ShoppingCart, section: "main" },
+  { name: "VIP Codes", href: "/admin/vip-codes", icon: Ticket, section: "main" },
   { name: "Registration Links", href: "/admin/registration", icon: UserPlus, section: "tools" },
   { name: "WhatsApp Test", href: "/admin/whatsapp-test", icon: MessageCircle, section: "tools" },
   { name: "SMS Test", href: "/admin/sms-test", icon: MessageSquare, section: "tools" },

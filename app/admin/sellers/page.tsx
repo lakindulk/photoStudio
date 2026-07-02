@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Search, Trash2, CheckCircle, XCircle, Eye } from "lucide-react"
+import { Search, Trash2, CheckCircle, XCircle, Eye, ImageIcon } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
 
 interface Seller {
@@ -22,6 +22,7 @@ interface Seller {
   whatsapp?: string
   categories: string[]
   isApproved: boolean
+  paymentSlipUrl?: string
   createdAt: any
 }
 
@@ -261,6 +262,31 @@ export default function AdminSellersPage() {
                                           </Badge>
                                         ))}
                                       </div>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm text-foreground/70">Payment Receipt</label>
+                                      {selectedSeller.paymentSlipUrl ? (
+                                        <div className="mt-2">
+                                          <img
+                                            src={selectedSeller.paymentSlipUrl}
+                                            alt="Payment receipt"
+                                            className="max-h-64 rounded-lg border border-border/40 object-contain"
+                                          />
+                                          <a
+                                            href={selectedSeller.paymentSlipUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-xs text-blue-400 hover:underline mt-1 inline-block"
+                                          >
+                                            Open full size
+                                          </a>
+                                        </div>
+                                      ) : (
+                                        <div className="flex items-center gap-2 mt-1 text-foreground/40">
+                                          <ImageIcon className="w-4 h-4" />
+                                          <span className="text-sm">No receipt uploaded</span>
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
                                 )}

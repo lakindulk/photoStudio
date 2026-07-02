@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useAuth } from "@/contexts/AuthContext"
 import { toast } from "@/hooks/use-toast"
-import { LogIn, Shield, Store, User } from "lucide-react"
+import { LogIn, Store } from "lucide-react"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -125,31 +125,13 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <div className="border-t border-border/40 pt-4">
-              <p className="text-foreground/70 text-sm text-center mb-3">
-                Quick access for different user types:
-              </p>
-              <div className="grid grid-cols-3 gap-2">
-                <Link href="/admin/login">
-                  <Button variant="outline" size="sm" className="w-full bg-transparent border-gray-600 text-foreground/80 hover:bg-muted">
-                    <Shield className="w-4 h-4 mr-1" />
-                    Admin
-                  </Button>
-                </Link>
-                <Link href="/seller/login">
-                  <Button variant="outline" size="sm" className="w-full bg-transparent border-gray-600 text-foreground/80 hover:bg-muted">
-                    <Store className="w-4 h-4 mr-1" />
-                    Seller
-                  </Button>
-                </Link>
-                <Button variant="outline" size="sm" className="w-full bg-transparent border-gray-600 text-foreground/80 hover:bg-muted" disabled>
-                  <User className="w-4 h-4 mr-1" />
-                  User
+            <div className="border-t border-border/40 pt-4 text-center">
+              <Link href="/seller/login">
+                <Button variant="outline" size="sm" className="bg-transparent border-gray-600 text-foreground/80 hover:bg-muted">
+                  <Store className="w-4 h-4 mr-1" />
+                  Seller Login
                 </Button>
-              </div>
-              <p className="text-foreground/50 text-xs text-center mt-2">
-                This unified login works for all account types
-              </p>
+              </Link>
             </div>
 
             <div className="text-center">

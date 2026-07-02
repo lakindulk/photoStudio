@@ -1,14 +1,18 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { collection, getDocs, query, where } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+import { collection, getDocs, query, where, doc, updateDoc, increment } from "firebase/firestore"
+import { db, getFirebaseFirestore } from "@/lib/firebase"
 import { useAuth } from "@/contexts/AuthContext"
 import { SellerLayout } from "@/components/seller/SellerLayout"
 import {
   Camera, ShoppingCart, Eye, TrendingUp, CalendarDays, AlertCircle,
-  Megaphone, ShoppingBag, ArrowRight, Plus, CreditCard,
+  Megaphone, ArrowRight, Plus, CreditCard, Tag, Check,
 } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { toast } from "@/hooks/use-toast"
+import type { VipCode } from "@/types"
 import Link from "next/link"
 
 interface SellerStats {
@@ -19,7 +23,6 @@ interface SellerStats {
   totalViews: number
   monthlyRevenue: number
   activeSubscriptions: number
-  marketplaceListings: number
 }
 
 export default function SellerDashboard() {
@@ -32,19 +35,70 @@ export default function SellerDashboard() {
     totalViews: 0,
     monthlyRevenue: 0,
     activeSubscriptions: 0,
-    marketplaceListings: 0,
   })
   const [loading, setLoading] = useState(true)
+
+  // VIP code state
+  const [vipInput, setVipInput] = useState("")
+  const [vipApplying, setVipApplying] = useState(false)
+  const [vipApplied, setVipApplied] = useState(false)
+
+  const handleRedeemVip = async () => {
+    const code = vipInput.trim().toUpperCase()
+    if (!code || !user) return
+    setVipApplying(true)
+    try {
+      const firestore = getFirebaseFirestore()
+      if (!firestore) throw new Error("Database unavailable")
+      const q = query(collection(firestore, "vipCodes"), where("code", "==", code), where("isActive", "==", true))
+      const snap = await getDocs(q)
+      if (snap.empty) {
+        toast({ title: "Invalid Code", description: "This VIP code is not valid or inactive.", variant: "destructive" })
+        setVipApplying(false)
+        return
+      }
+      const vipDoc = snap.docs[0]
+      const vip = { id: vipDoc.id, ...vipDoc.data() } as VipCode
+      if (vip.useCount >= vip.maxUses) {
+        toast({ title: "Code Exhausted", description: "This VIP code has reached its usage limit.", variant: "destructive" })
+        setVipApplying(false)
+        return
+      }
+
+      const updates: Record<string, any> = { vipCodeUsed: vip.code, vipCodeId: vip.id }
+      if (vip.discountType === "free") {
+        updates.isApproved = true
+        if (vip.freeDurationMonths) {
+          const exp = new Date()
+          exp.setMonth(exp.getMonth() + vip.freeDurationMonths)
+          updates.vipExpiresAt = exp.toISOString()
+        }
+      }
+
+      await updateDoc(doc(firestore, "users", user.id), updates)
+      await updateDoc(doc(firestore, "vipCodes", vip.id), { useCount: increment(1) })
+
+      const desc = vip.discountType === "free"
+        ? `Free access activated${vip.freeDurationMonths ? ` for ${vip.freeDurationMonths} month${vip.freeDurationMonths > 1 ? "s" : ""}` : ""}!`
+        : `${vip.discountPercent}% discount code saved — applies on your next subscription purchase.`
+
+      toast({ title: "VIP Code Redeemed!", description: desc })
+      setVipApplied(true)
+      setVipInput("")
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message || "Failed to redeem code.", variant: "destructive" })
+    }
+    setVipApplying(false)
+  }
 
   useEffect(() => {
     const fetchStats = async () => {
       if (!user) return
       try {
-        const [adsSnap, bookingsSnap, subsSnap, mktSnap] = await Promise.all([
+        const [adsSnap, bookingsSnap, subsSnap] = await Promise.all([
           getDocs(query(collection(db, "advertisements"), where("sellerId", "==", user.id))),
           getDocs(query(collection(db, "bookings"), where("sellerId", "==", user.id))),
           getDocs(query(collection(db, "subscriptions"), where("sellerId", "==", user.id), where("status", "==", "active"))),
-          getDocs(query(collection(db, "marketplaceItems"), where("sellerId", "==", user.id))),
         ])
 
         const ads = adsSnap.docs.map((d) => ({ id: d.id, ...d.data() }))
@@ -75,7 +129,6 @@ export default function SellerDashboard() {
           totalViews: ads.reduce((s: number, a: any) => s + (a.views || 0), 0),
           monthlyRevenue,
           activeSubscriptions: activeSubs,
-          marketplaceListings: mktSnap.size,
         })
       } catch (e) {
         console.error(e)
@@ -124,8 +177,7 @@ export default function SellerDashboard() {
   const quickActions = [
     { label: "New Advertisement", desc: "Add a new service listing", icon: Camera, href: "/seller/ads/create", color: "#082537" },
     { label: "Event Calendar", desc: "Manage your schedule", icon: CalendarDays, href: "/seller/calendar", color: "#788C59" },
-    { label: "Sell / Rent Items", desc: "List your photography gear", icon: ShoppingBag, href: "/seller/marketplace", color: "#254A5A" },
-    { label: "New Subscription", desc: "Upgrade or renew your plan", icon: CreditCard, href: "/seller/subscriptions/purchase", color: "#788C59" },
+{ label: "New Subscription", desc: "Upgrade or renew your plan", icon: CreditCard, href: "/seller/subscriptions/purchase", color: "#788C59" },
   ]
 
   return (
@@ -186,9 +238,9 @@ export default function SellerDashboard() {
           </div>
         )}
 
-        {/* Subscription + Marketplace stats */}
-        <div className="grid grid-cols-2 gap-4 mb-8 animate-fade-in-up" style={{ animationDelay: "320ms" }}>
-          <div className="bg-[#082537] text-white rounded-2xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+        {/* Subscription stats */}
+        <div className="mb-8 animate-fade-in-up" style={{ animationDelay: "320ms" }}>
+          <div className="bg-[#082537] text-white rounded-2xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 max-w-xs">
             <div className="flex items-center justify-between mb-2">
               <CreditCard className="w-5 h-5 text-white/60" />
               <Link href="/seller/subscriptions" className="text-xs text-white/50 hover:text-white/80 transition-colors">
@@ -207,24 +259,51 @@ export default function SellerDashboard() {
               </Link>
             )}
           </div>
-          <div className="bg-white border border-[#082537]/8 rounded-2xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
-            <div className="flex items-center justify-between mb-2">
-              <ShoppingBag className="w-5 h-5 text-[#082537]/40" />
-              <Link href="/seller/marketplace" className="text-xs text-[#082537]/40 hover:text-[#082537]/70 transition-colors">
-                Manage →
-              </Link>
-            </div>
-            <p className="text-3xl font-bold text-[#082537]">{stats.marketplaceListings}</p>
-            <p className="text-[#082537]/50 text-sm mt-0.5">Marketplace Listings</p>
-            <Link
-              href="/seller/marketplace/create"
-              className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-[#788C59] hover:text-[#788C59]/80 transition-colors"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              New listing
-            </Link>
-          </div>
         </div>
+
+        {/* VIP Code Redemption */}
+        {!(user as any)?.vipCodeUsed && !vipApplied && (
+          <div className="mb-8 animate-fade-in-up" style={{ animationDelay: "380ms" }}>
+            <div className="bg-white rounded-2xl border border-[#082537]/8 p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Tag className="w-4 h-4 text-[#788C59]" />
+                <h2 className="text-sm font-bold text-[#082537]">Have a VIP Code?</h2>
+                <span className="text-xs text-[#082537]/35 font-medium">Apply it to unlock free access or a discount</span>
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  value={vipInput}
+                  onChange={(e) => setVipInput(e.target.value.toUpperCase())}
+                  placeholder="Enter VIP code"
+                  className="rounded-xl border-[#082537]/15 h-10 text-[#082537] font-mono tracking-widest uppercase flex-1"
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleRedeemVip() } }}
+                />
+                <Button
+                  onClick={handleRedeemVip}
+                  disabled={!vipInput.trim() || vipApplying}
+                  className="h-10 px-5 bg-[#082537] hover:bg-[#082537]/85 text-white rounded-xl font-bold text-sm"
+                >
+                  {vipApplying ? "Checking..." : "Redeem"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Applied VIP code confirmation */}
+        {((user as any)?.vipCodeUsed || vipApplied) && (
+          <div className="mb-8 animate-fade-in-up" style={{ animationDelay: "380ms" }}>
+            <div className="bg-[#788C59]/8 rounded-2xl border border-[#788C59]/25 p-4 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-[#788C59] flex items-center justify-center flex-shrink-0">
+                <Check className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-[#788C59]">VIP Code Applied</p>
+                <p className="text-xs text-[#082537]/50">Code: <span className="font-mono font-bold">{(user as any)?.vipCodeUsed ?? vipInput}</span></p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Quick actions */}
         <div className="mb-6 animate-fade-in-up" style={{ animationDelay: "420ms" }}>

@@ -114,10 +114,6 @@ export const SUBSCRIPTION_DURATION_MONTHS = 3
 // Max ads allowed per active subscription
 export const MAX_ADS_PER_SUBSCRIPTION = 8
 
-// Marketplace listing constants
-export const MARKETPLACE_LISTING_FEE = 100 // LKR per listing
-export const MARKETPLACE_DURATION_MONTHS = 2 // 2 months live after approval
-
 // All service categories for full-access packages
 const ALL_PHOTO_VIDEO_CATEGORIES: ServiceCategory[] = [
   "drone-photography",
@@ -444,16 +440,3 @@ export const ALL_SUBSCRIPTION_PACKAGES = [
 // Legacy
 export const AD_PRICE = 5000
 export const AD_DURATION_MONTHS = 3
-
-// Marketplace categories
-export const MARKETPLACE_CATEGORIES: Array<{ value: string; label: string }> = [
-  { value: "cameras", label: "Cameras" },
-  { value: "lenses", label: "Lenses" },
-  { value: "lighting", label: "Lighting Equipment" },
-  { value: "tripods-stands", label: "Tripods & Stands" },
-  { value: "bags-cases", label: "Bags & Cases" },
-  { value: "drones", label: "Drones" },
-  { value: "audio-equipment", label: "Audio Equipment" },
-  { value: "backdrops", label: "Backdrops & Props" },
-  { value: "other-equipment", label: "Other Equipment" },
-]

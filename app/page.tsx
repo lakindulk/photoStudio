@@ -4,7 +4,7 @@ import { ServiceCategories } from "@/components/ServiceCategories"
 import { FeaturedServices } from "@/components/FeaturedServices"
 import { Reveal } from "@/components/Reveal"
 import {
-  Shield, Sparkles, Leaf, ShoppingBag, Tag,
+  Shield, Sparkles, Leaf,
   ArrowRight, Camera, Star, Phone, MapPin,
 } from "lucide-react"
 import Link from "next/link"
@@ -16,142 +16,9 @@ export default function HomePage() {
       <Hero />
       
 
-      {/* ── Featured Highlights Grid ──────────────────────── */}
-      <section className="py-14 bg-[#082537] border-t border-white/5">
-        <div className="max-w-6xl mx-auto px-6">
-          <Reveal className="text-center mb-8">
-            <p className="text-[#788C59] text-xs font-bold uppercase tracking-widest mb-2">Explore</p>
-            <h2 className="text-3xl lg:text-4xl font-black text-white tracking-tight">What's on Malka Studio</h2>
-          </Reveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-            {/* Marketplace card */}
-            <Reveal direction="left">
-              <Link href="/marketplace" className="group relative overflow-hidden rounded-3xl h-72 flex flex-col justify-end block shadow-lg hover:shadow-2xl transition-all duration-400 hover:-translate-y-1">
-                <img
-                  src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=700&h=500&fit=crop&auto=format&q=75"
-                  alt="Gear Marketplace"
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-600"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#082537]/92 via-[#082537]/45 to-transparent" />
-                <div className="relative z-10 p-7">
-                  <div className="inline-flex items-center gap-2 bg-[#788C59]/25 border border-[#788C59]/40 text-[#788C59] px-3.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mb-3">
-                    <ShoppingBag className="w-3 h-3" />
-                    Gear Marketplace
-                  </div>
-                  <h3 className="text-white font-black text-2xl leading-tight mb-1.5">Buy &amp; Rent<br />Photography Gear</h3>
-                  <p className="text-white/45 text-sm leading-snug mb-4 max-w-xs">Cameras, lenses, lighting &amp; more from verified sellers. List for just 100 LKR.</p>
-                  <span className="inline-flex items-center gap-1.5 bg-[#788C59] group-hover:bg-[#788C59]/90 text-white text-xs font-bold px-5 py-2 rounded-xl transition-all">
-                    Browse Marketplace <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                  </span>
-                </div>
-              </Link>
-            </Reveal>
-
-            {/* Services card */}
-            <Reveal direction="right">
-              <Link href="/services" className="group relative overflow-hidden rounded-3xl h-72 flex flex-col justify-end block shadow-lg hover:shadow-2xl transition-all duration-400 hover:-translate-y-1">
-                <img
-                  src="https://images.unsplash.com/photo-1519741497674-611481863552?w=700&h=500&fit=crop&auto=format&q=75"
-                  alt="Photography Services"
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-600"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/35 to-transparent" />
-                <div className="relative z-10 p-7">
-                  <div className="inline-flex items-center gap-2 bg-white/15 border border-white/20 text-white px-3.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mb-3">
-                    <Camera className="w-3 h-3" />
-                    All Services
-                  </div>
-                  <h3 className="text-white font-black text-2xl leading-tight mb-1.5">Weddings, Events,<br />Drones &amp; More</h3>
-                  <p className="text-white/45 text-sm leading-snug mb-4 max-w-xs">Find and instantly book verified photographers &amp; videographers across Sri Lanka.</p>
-                  <span className="inline-flex items-center gap-1.5 bg-white/15 hover:bg-white/25 border border-white/20 text-white text-xs font-bold px-5 py-2 rounded-xl transition-all">
-                    View All Services <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                  </span>
-                </div>
-              </Link>
-            </Reveal>
-
-          </div>
-        </div>
-      </section>
-
       {/* ── Categories ────────────────────────────────────── */}
       <section id="categories" className="bg-white border-t border-[#082537]/5">
         <ServiceCategories />
-      </section>
-
-      {/* ── Marketplace Preview ───────────────────────────── */}
-      <section className="py-24 bg-[#082537] overflow-hidden relative noise">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#788C59]/12 rounded-full blur-3xl pointer-events-none animate-glow" />
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-[#788C59]/6 rounded-full blur-2xl pointer-events-none" />
-
-        <div className="max-w-6xl mx-auto px-6 relative z-10">
-          <div className="flex flex-col lg:flex-row items-center gap-14">
-
-            {/* Text */}
-            <Reveal direction="left" className="lg:w-[48%]">
-              <div className="inline-flex items-center gap-2 bg-[#788C59]/20 border border-[#788C59]/30 text-[#788C59] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6">
-                <ShoppingBag className="w-3.5 h-3.5" />
-                Gear Marketplace
-              </div>
-              <h2 className="text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.1] mb-5">
-                Buy & Rent<br />
-                <span className="text-gradient-olive">Photography Gear</span>
-              </h2>
-              <p className="text-white/50 text-base leading-relaxed mb-8 max-w-md">
-                Find cameras, lenses, lighting and more from verified sellers.
-                Sellers list for just <strong className="text-white font-bold">100 LKR</strong> — live 2 months.
-              </p>
-              <div className="flex flex-wrap gap-2 mb-8">
-                {["Cameras", "Lenses", "Lighting", "Tripods", "Drones", "Audio"].map((c, i) => (
-                  <span
-                    key={c}
-                    className="px-3.5 py-1.5 rounded-full bg-white/8 hover:bg-white/16 text-white/55 hover:text-white text-xs font-semibold border border-white/10 transition-all cursor-default animate-fade-in"
-                    style={{ animationDelay: `${i * 60}ms` }}
-                  >
-                    {c}
-                  </span>
-                ))}
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <Link href="/marketplace" className="btn-shimmer inline-flex items-center gap-2 bg-[#788C59] hover:bg-[#788C59]/90 text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-lg hover:-translate-y-0.5">
-                  Browse Marketplace <ArrowRight className="w-4 h-4" />
-                </Link>
-                <Link href="/marketplace/sell" className="inline-flex items-center gap-2 bg-white/8 hover:bg-white/14 border border-white/15 text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all">
-                  <Tag className="w-4 h-4" /> Sell Your Gear
-                </Link>
-              </div>
-            </Reveal>
-
-            {/* Mock grid */}
-            <Reveal direction="right" className="lg:w-[52%] grid grid-cols-2 gap-3">
-              {[
-                { label: "Canon EOS R5", sub: "From 280,000 LKR", type: "For Sale",  img: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=300&h=200&fit=crop&auto=format&q=70" },
-                { label: "50mm f/1.8 Lens", sub: "5,000 LKR / day",  type: "For Rent", img: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=300&h=200&fit=crop&auto=format&q=70" },
-                { label: "LED Panel Kit",   sub: "2,500 LKR / day",  type: "For Rent", img: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=300&h=200&fit=crop&auto=format&q=70" },
-                { label: "DJI Mini 3 Pro",  sub: "From 180,000 LKR", type: "For Sale",  img: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=300&h=200&fit=crop&auto=format&q=70" },
-              ].map((item, i) => (
-                <div
-                  key={item.label}
-                  className="group bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#788C59]/40 rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer hover:-translate-y-1 animate-fade-in-up"
-                  style={{ animationDelay: `${i * 80}ms` }}
-                >
-                  <div className="h-28 overflow-hidden">
-                    <img src={item.img} alt={item.label} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                  </div>
-                  <div className="p-3.5">
-                    <p className="text-white font-bold text-sm">{item.label}</p>
-                    <p className="text-white/35 text-xs mt-0.5 font-medium">{item.sub}</p>
-                    <span className={`inline-block mt-2 text-[10px] font-bold px-2.5 py-0.5 rounded-full ${item.type === "For Sale" ? "bg-[#082537] text-white/70 border border-white/10" : "bg-[#788C59]/25 text-[#788C59]"}`}>
-                      {item.type}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </Reveal>
-          </div>
-        </div>
       </section>
 
       {/* ── Services quick overview ────────────────────────── */}
@@ -286,7 +153,7 @@ export default function HomePage() {
             <div>
               <p className="text-white/45 font-bold text-xs uppercase tracking-wider mb-4">Platform</p>
               <div className="space-y-2.5">
-                {[{ label: "All Services", href: "/services" },{ label: "Gear Marketplace", href: "/marketplace" },{ label: "About Us", href: "/about" },{ label: "Seller Portal", href: "/seller/login" },{ label: "Privacy Policy", href: "/privacy" }].map((s) => (
+                {[{ label: "All Services", href: "/services" },{ label: "About Us", href: "/about" },{ label: "Seller Portal", href: "/seller/login" },{ label: "Privacy Policy", href: "/privacy" }].map((s) => (
                   <Link key={s.label} href={s.href} className="block text-white/30 text-sm hover:text-white/65 transition-colors hover:translate-x-1 transform">{s.label}</Link>
                 ))}
               </div>

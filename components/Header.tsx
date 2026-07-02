@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Search, User as UserIcon, Menu, X, ShoppingBag, Camera } from "lucide-react"
+import { Search, User as UserIcon, Menu, X, Camera } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { cn } from "@/lib/utils"
 
@@ -23,7 +23,6 @@ export function Header({ forceWhite = false }: { forceWhite?: boolean }) {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/services", label: "Services" },
-    { href: "/marketplace", label: "Marketplace" },
     { href: "/about", label: "About Us" },
   ]
 
@@ -72,13 +71,6 @@ export function Header({ forceWhite = false }: { forceWhite?: boolean }) {
             <button className="text-[#082537]/70 hover:text-[#788C59] transition-colors">
               <Search className="w-5 h-5 stroke-[1.5]" />
             </button>
-            <Link
-              href="/marketplace"
-              className="flex items-center gap-1.5 text-sm font-semibold text-[#082537] bg-[#788C59]/10 hover:bg-[#788C59]/20 px-3.5 py-1.5 rounded-xl transition-colors"
-            >
-              <ShoppingBag className="w-4 h-4 text-[#788C59]" />
-              Marketplace
-            </Link>
             {user && (
               <Link
                 href={user.role === "admin" ? "/admin" : "/seller"}

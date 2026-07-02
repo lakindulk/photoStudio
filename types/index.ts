@@ -154,6 +154,19 @@ export interface Advertisement {
   updatedAt: Date
 }
 
+export interface VipCode {
+  id: string
+  code: string
+  discountType: "free" | "percent"
+  freeDurationMonths?: number
+  freeServices: "all" | ServiceCategory[]
+  discountPercent?: 20 | 40 | 60 | 70
+  maxUses: number
+  useCount: number
+  isActive: boolean
+  createdAt: string
+}
+
 export interface CalendarEvent {
   id: string
   sellerId: string
@@ -164,45 +177,6 @@ export interface CalendarEvent {
   endTime?: string // HH:mm
   type: "booking" | "shoot" | "meeting" | "delivery" | "other"
   color?: string
-  createdAt: string
-  updatedAt: string
-}
-
-export type MarketplaceCategory =
-  | "cameras"
-  | "lenses"
-  | "lighting"
-  | "tripods-stands"
-  | "bags-cases"
-  | "drones"
-  | "audio-equipment"
-  | "backdrops"
-  | "other-equipment"
-
-export type MarketplaceListingType = "sell" | "rent"
-
-export interface MarketplaceItem {
-  id: string
-  sellerId: string
-  sellerName: string
-  sellerEmail: string
-  sellerContact?: string
-  title: string
-  description: string
-  category: MarketplaceCategory
-  listingType: MarketplaceListingType
-  price: number
-  rentPeriod?: string
-  condition?: "new" | "like-new" | "good" | "fair"
-  images: string[]
-  location?: string
-  status: "pending" | "approved" | "rejected" | "sold" | "rented" | "expired"
-  paymentSlipUrl?: string
-  listingFee: number
-  rejectionReason?: string
-  approvedBy?: string
-  approvedAt?: string
-  expiresAt?: string
   createdAt: string
   updatedAt: string
 }
