@@ -9,7 +9,7 @@ import {
   onAuthStateChanged,
   createUserWithEmailAndPassword,
 } from "firebase/auth"
-import { doc, getDoc, setDoc } from "firebase/firestore"
+import { doc, getDoc } from "firebase/firestore"
 import { getFirebaseAuth, getFirebaseFirestore } from "@/lib/firebase"
 import type { User } from "@/types"
 
@@ -92,43 +92,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string, userData: Partial<User>): Promise<string> => {
     const auth = getFirebaseAuth()
-    const db = getFirebaseFirestore()
-    if (!auth || !db) throw new Error("Firebase not initialized")
+    if (!auth) throw new Error("Firebase not initialized")
 
     setLoading(true)
     try {
       // Step 1 — create the Firebase Auth user
       const { user: fbUser } = await createUserWithEmailAndPassword(auth, email, password)
 
-      // Step 2 — force a fresh ID token so Firestore's auth middleware
-      //          recognises the newly created account before we write
-      await fbUser.getIdToken(true)
+      // Step 2 — get a fresh ID token to authenticate the server-side call
+      const idToken = await fbUser.getIdToken()
 
-      // Step 3 — write the Firestore user document directly
-      const userDocData = {
+      // Step 3 — build document data, stripping undefined values (Firestore rejects them)
+      const raw = {
         email: fbUser.email,
         role: userData.role || "seller",
         name: userData.name || "",
         phone: userData.phone || "",
         whatsapp: userData.whatsapp || "",
-        createdAt: new Date(),
-        updatedAt: new Date(),
         ...userData,
       }
+      const userDocData: Record<string, unknown> = {}
+      for (const [k, v] of Object.entries(raw)) {
+        if (v !== undefined) userDocData[k] = v
+      }
 
-      await setDoc(doc(db, "users", fbUser.uid), userDocData)
+      // Step 4 — write the Firestore document via the Admin SDK API route,
+      //          which bypasses security rules and avoids the auth-propagation
+      //          race condition that blocks direct client-side writes for new users
+      const res = await fetch("/api/register-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken, userData: userDocData }),
+      })
 
-      // Step 4 — set user in context immediately so layouts don't redirect
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body?.error || "Failed to create user profile")
+      }
+
+      // Step 5 — put the user in context immediately so layouts don't redirect
       setUser({
         id: fbUser.uid,
         email: fbUser.email!,
-        ...userDocData,
+        ...(userDocData as Partial<User>),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       } as User)
 
       return fbUser.uid
     } catch (error: any) {
       setLoading(false)
-      // Re-throw with a clear message so the registration page can show it
       const msg = error?.message || String(error)
       console.error("signUp error:", msg)
       throw new Error(msg)
