@@ -167,6 +167,18 @@ export interface VipCode {
   createdAt: string
 }
 
+export interface Rating {
+  id: string
+  sellerId: string
+  rating?: number        // 1–5, optional
+  title?: string
+  description?: string
+  mediaUrl?: string
+  mediaType?: "image" | "video"
+  guestName?: string
+  createdAt: Date
+}
+
 export interface CalendarEvent {
   id: string
   sellerId: string

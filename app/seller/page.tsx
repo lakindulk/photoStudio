@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { SellerLayout } from "@/components/seller/SellerLayout"
 import {
   Camera, ShoppingCart, Eye, TrendingUp, CalendarDays, AlertCircle,
-  Megaphone, ArrowRight, Plus, CreditCard, Tag, Check,
+  Megaphone, ArrowRight, Plus, CreditCard, Tag, Check, Link2, Copy, CheckCheck, Star, ImageIcon,
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -42,6 +42,19 @@ export default function SellerDashboard() {
   const [vipInput, setVipInput] = useState("")
   const [vipApplying, setVipApplying] = useState(false)
   const [vipApplied, setVipApplied] = useState(false)
+
+  // Rating link copy state
+  const [linkCopied, setLinkCopied] = useState(false)
+
+  const copyRatingLink = () => {
+    if (!user) return
+    const url = `${window.location.origin}/rate/${user.id}`
+    navigator.clipboard.writeText(url).then(() => {
+      setLinkCopied(true)
+      toast({ title: "Link copied!", description: "Share this link with your clients to collect reviews." })
+      setTimeout(() => setLinkCopied(false), 2500)
+    })
+  }
 
   const handleRedeemVip = async () => {
     const code = vipInput.trim().toUpperCase()
@@ -176,8 +189,9 @@ export default function SellerDashboard() {
 
   const quickActions = [
     { label: "New Advertisement", desc: "Add a new service listing", icon: Camera, href: "/seller/ads/create", color: "#082537" },
+    { label: "My Portfolio", desc: "Manage your public portfolio", icon: Star, href: "/seller/portfolio", color: "#788C59" },
     { label: "Event Calendar", desc: "Manage your schedule", icon: CalendarDays, href: "/seller/calendar", color: "#788C59" },
-{ label: "New Subscription", desc: "Upgrade or renew your plan", icon: CreditCard, href: "/seller/subscriptions/purchase", color: "#788C59" },
+    { label: "New Subscription", desc: "Upgrade or renew your plan", icon: CreditCard, href: "/seller/subscriptions/purchase", color: "#788C59" },
   ]
 
   return (
@@ -260,6 +274,70 @@ export default function SellerDashboard() {
             )}
           </div>
         </div>
+
+        {/* Portfolio + Rating links side by side */}
+        {user && (
+          <div className="mb-8 animate-fade-in-up grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ animationDelay: "360ms" }}>
+
+            {/* Portfolio link */}
+            <div className="bg-white rounded-2xl border border-[#082537]/8 p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <ImageIcon className="w-4 h-4 text-[#788C59]" />
+                <h2 className="text-sm font-bold text-[#082537]">Portfolio Link</h2>
+              </div>
+              <div className="flex gap-2">
+                <div className="flex-1 flex items-center gap-2 bg-[#eef3f0] rounded-xl px-3 py-2 min-w-0">
+                  <span className="text-xs font-mono text-[#082537]/60 truncate">
+                    {typeof window !== "undefined" ? window.location.origin : ""}/portfolio/{user.id}
+                  </span>
+                </div>
+                <Button
+                  onClick={() => {
+                    const url = `${window.location.origin}/portfolio/${user.id}`
+                    navigator.clipboard.writeText(url).then(() => {
+                      toast({ title: "Portfolio link copied!" })
+                    })
+                  }}
+                  size="sm"
+                  className="h-9 px-3 bg-[#082537] hover:bg-[#082537]/85 text-white rounded-xl font-bold text-xs flex-shrink-0 gap-1"
+                >
+                  <Copy className="w-3 h-3" /> Copy
+                </Button>
+              </div>
+              <Link href="/seller/portfolio" className="inline-flex items-center gap-1 text-xs text-[#788C59] hover:underline mt-2">
+                <ImageIcon className="w-3 h-3" /> Manage portfolio →
+              </Link>
+            </div>
+
+            {/* Rating link */}
+            <div className="bg-white rounded-2xl border border-[#082537]/8 p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Star className="w-4 h-4 text-yellow-500" />
+                <h2 className="text-sm font-bold text-[#082537]">Rating Link</h2>
+              </div>
+              <div className="flex gap-2 items-center">
+                <div className="flex-1 flex items-center gap-2 bg-[#eef3f0] rounded-xl px-3 py-2 min-w-0">
+                  <Link2 className="w-3 h-3 text-[#788C59] flex-shrink-0" />
+                  <span className="text-xs font-mono text-[#082537]/60 truncate">
+                    {typeof window !== "undefined" ? window.location.origin : ""}/rate/{user.id}
+                  </span>
+                </div>
+                <Button
+                  onClick={copyRatingLink}
+                  size="sm"
+                  className="h-9 px-3 bg-[#082537] hover:bg-[#082537]/85 text-white rounded-xl font-bold text-xs flex-shrink-0 gap-1"
+                >
+                  {linkCopied ? (
+                    <><CheckCheck className="w-3 h-3" /> OK</>
+                  ) : (
+                    <><Copy className="w-3 h-3" /> Copy</>
+                  )}
+                </Button>
+              </div>
+              <p className="text-xs text-[#082537]/35 mt-2">Share for client reviews — no login needed.</p>
+            </div>
+          </div>
+        )}
 
         {/* VIP Code Redemption */}
         {!(user as any)?.vipCodeUsed && !vipApplied && (
