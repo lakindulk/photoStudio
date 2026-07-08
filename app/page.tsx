@@ -98,9 +98,10 @@ export default function HomePage() {
         </div>
       </section>
 
-
-
-      
+      {/* ── Featured Services ─────────────────────────────── */}
+      <section className="py-20 bg-white">
+        <FeaturedServices />
+      </section>
 
       {/* ── CTA for sellers ───────────────────────────────── */}
       <section className="bg-[#082537] py-20 relative overflow-hidden noise">
